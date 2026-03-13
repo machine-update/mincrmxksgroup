@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Factures | XKSGROUP CRM{% endblock %}
+
+{% block top_action %}
+<a class="btn btn-primary-modern" href="{{ url_for('quotes_list') }}"><i class="bi bi-arrow-repeat"></i> Convertir un devis</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Factures</h1>
+    <p class="page-sub">Suivre les factures emises, relier les devis et piloter les paiements.</p>
+  </div>
+</div>
+
+<div class="surface-card list-section">
+  <form method="get" class="mb-3">
+    <div class="search-wrap" style="max-width:none;">
+      <i class="bi bi-search"></i>
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Rechercher une facture par reference ou client..." />
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table modern-table align-middle">
+      <thead><tr><th>Reference</th><th>Emission</th><th>Echeance</th><th>Client</th><th>Total</th><th>Statut</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        {% for invoice in invoices %}
+        <tr>
+          <td class="fw-bold">{{ invoice.reference }}</td>
+          <td>{{ invoice.date_facture.strftime('%d/%m/%Y') }}</td>
+          <td>{{ invoice.date_echeance.strftime('%d/%m/%Y') }}</td>
+          <td>{{ invoice.client.nom }}</td>
+          <td class="fw-bold">{{ invoice.total_ttc|money }}</td>
+          <td>
+            {% if invoice.statut == 'Payee' %}
+            <span class="status-pill done">Payee</span>
+            {% elif invoice.statut == 'Annulee' %}
+            <span class="status-pill other">Annulee</span>
+            {% elif invoice.statut == 'Brouillon' %}
+            <span class="status-pill wait">Brouillon</span>
+            {% else %}
+            <span class="status-pill progress">Emise</span>
+            {% endif %}
+          </td>
+          <td>{{ invoice.devis.reference if invoice.devis else '-' }}</td>
+          <td>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('invoices_show', invoice_id=invoice.id) }}">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center soft-muted py-4">Aucune facture trouvee.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

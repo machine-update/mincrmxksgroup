@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" role="img" aria-label="XKSGROUP COMPANY">
+  <defs>
+    <linearGradient id="gold" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fff4b8"/>
+      <stop offset="35%" stop-color="#ffd34f"/>
+      <stop offset="65%" stop-color="#f0b90d"/>
+      <stop offset="100%" stop-color="#c78a00"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#5d3c00" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="300" fill="transparent"/>
+  <g filter="url(#shadow)" fill="url(#gold)" stroke="#b77a00" stroke-width="4" font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">
+    <text x="600" y="155" font-size="180" font-weight="700" letter-spacing="3">XKSGROUP</text>
+    <text x="600" y="255" font-size="80" font-style="italic" letter-spacing="6">COMPANY</text>
+  </g>
+</svg>

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ invoice.reference }} | Impression facture</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 32px;
+        font-family: Manrope, Arial, sans-serif;
+        color: #13203d;
+        background: #f3f6fb;
+      }
+
+      .print-shell {
+        max-width: 960px;
+        margin: 0 auto;
+        background: #fff;
+        border: 1px solid #dfe6f3;
+        border-radius: 24px;
+        overflow: hidden;
+      }
+
+      .print-head {
+        padding: 28px 32px;
+        background: linear-gradient(135deg, #11204d, #2453e6);
+        color: #fff;
+      }
+
+      .print-body {
+        padding: 32px;
+      }
+
+      .print-grid {
+        display: grid;
+        grid-template-columns: 1.3fr 0.9fr;
+        gap: 24px;
+        margin-bottom: 28px;
+      }
+
+      .meta-card {
+        border: 1px solid #e4ebf8;
+        border-radius: 18px;
+        padding: 18px;
+        background: #fbfcff;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #e8eef8;
+        text-align: left;
+      }
+
+      th {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #7182a2;
+      }
+
+      .totals {
+        width: 320px;
+        margin-left: auto;
+        margin-top: 24px;
+      }
+
+      .totals div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .grand-total {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1f4ce0;
+      }
+
+      .print-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin: 20px auto 0;
+        max-width: 960px;
+      }
+
+      .print-actions button {
+        border: 0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .print-primary {
+        background: #1f4ce0;
+        color: #fff;
+      }
+
+      .print-secondary {
+        background: #edf2fb;
+        color: #13203d;
+      }
+
+      @media print {
+        body {
+          background: #fff;
+          padding: 0;
+        }
+
+        .print-shell {
+          border: 0;
+          border-radius: 0;
+        }
+
+        .print-actions {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="print-actions">
+      <button class="print-secondary" type="button" onclick="window.close()">Fermer</button>
+      <button class="print-primary" type="button" onclick="window.print()">Imprimer / Sauver en PDF</button>
+    </div>
+
+    <section class="print-shell">
+      <header class="print-head">
+        <h1 style="margin:0 0 8px;font-size:34px;">Facture {{ invoice.reference }}</h1>
+        <p style="margin:0;opacity:.84;">Emission {{ invoice.date_facture.strftime('%d/%m/%Y') }} · Echeance {{ invoice.date_echeance.strftime('%d/%m/%Y') }}</p>
+      </header>
+
+      <div class="print-body">
+        <div class="print-grid">
+          <div class="meta-card">
+            <strong>Facture pour</strong>
+            <p style="margin:10px 0 0;font-size:20px;font-weight:800;">{{ invoice.client.nom }}</p>
+            <p style="margin:6px 0 0;color:#677894;">{{ invoice.client.entreprise or 'Entreprise non renseignee' }}</p>
+            <p style="margin:6px 0 0;color:#677894;">{{ invoice.client.email }}</p>
+          </div>
+          <div class="meta-card">
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px;"><span>Source</span><strong>{{ invoice.devis.reference if invoice.devis else '-' }}</strong></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px;"><span>Statut</span><strong>{{ invoice.statut }}</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>Compte</span><strong>{{ invoice.utilisateur.nom }}</strong></div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Designation</th><th>Quantite</th><th>Prix unitaire</th><th>Total HT</th></tr>
+          </thead>
+          <tbody>
+            {% for line in invoice.lignes %}
+            <tr>
+              <td>{{ line.designation }}</td>
+              <td>{{ line.quantite }}</td>
+              <td>{{ line.prix_unitaire|money }}</td>
+              <td><strong>{{ line.total|money }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="totals">
+          <div><span>Total HT</span><strong>{{ invoice.subtotal_ht|money }}</strong></div>
+          <div><span>TVA (20%)</span><strong>{{ invoice.tax_amount|money }}</strong></div>
+          <div class="grand-total"><span>Total TTC</span><strong>{{ invoice.total_ttc|money }}</strong></div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Modifier' if user else 'Nouveau' }} utilisateur | XKSGROUP CRM{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ 'Modifier utilisateur' if user else 'Ajouter un membre' }}</h1>
+    <p class="page-sub">Control role-based access for operations and administration.</p>
+  </div>
+</div>
+
+<div class="surface-card form-shell">
+  <form method="post" class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">Nom *</label>
+      <input class="form-control" name="nom" value="{{ user.nom if user else '' }}" required>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Email *</label>
+      <input class="form-control" type="email" name="email" value="{{ user.email if user else '' }}" required>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Role *</label>
+      <select class="form-select" name="role">
+        <option value="responsable" {% if user and user.role == 'responsable' %}selected{% endif %}>Responsable</option>
+        <option value="employe" {% if not user or user.role == 'employe' %}selected{% endif %}>Employe</option>
+      </select>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Mot de passe {% if user %}(laisser vide pour conserver){% else %}*{% endif %}</label>
+      <input class="form-control" type="password" name="password" {% if not user %}required{% endif %}>
+    </div>
+    <div class="col-12 d-flex gap-2">
+      <button class="btn btn-primary-modern" type="submit">Enregistrer l'utilisateur</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('users_list') }}">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

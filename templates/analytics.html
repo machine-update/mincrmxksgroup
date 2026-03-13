@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% block title %}Analytique | XKSGROUP CRM{% endblock %}
+
+{% block top_action %}
+<a class="btn btn-primary-modern" href="{{ url_for('dashboard') }}"><i class="bi bi-arrow-left"></i> Retour au tableau de bord</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Analytique avancee</h1>
+    <p class="page-sub">Pilotage executif des revenus, de la production et de la performance commerciale.</p>
+  </div>
+  <span class="status-pill progress"><i class="bi bi-activity"></i> Snapshot {{ analytics.generated_at }}</span>
+</div>
+
+<section class="analytics-hero mb-4">
+  <div class="analytics-hero-copy">
+    <span class="eyebrow">Executive analytics</span>
+    <h2>Un cockpit business plus lisible, plus rapide et orienté décision.</h2>
+    <p>Visualise la traction commerciale, la pression sur la production et les clients qui portent vraiment le chiffre d'affaires.</p>
+    <div class="analytics-signal-row">
+      <div class="signal-chip">
+        <span class="signal-label">Croissance mensuelle</span>
+        <strong class="{% if analytics.insights.revenue_growth >= 0 %}text-success{% else %}text-danger{% endif %}">
+          {{ '+' if analytics.insights.revenue_growth >= 0 else '' }}{{ analytics.insights.revenue_growth }}%
+        </strong>
+      </div>
+      <div class="signal-chip">
+        <span class="signal-label">Taux d'acceptation</span>
+        <strong>{{ analytics.insights.acceptance_rate }}%</strong>
+      </div>
+      <div class="signal-chip">
+        <span class="signal-label">Charge production</span>
+        <strong>{{ analytics.insights.production_load }}%</strong>
+      </div>
+    </div>
+  </div>
+  <div class="analytics-hero-panel">
+    <div class="hero-metric-card">
+      <span>Run rate revenus</span>
+      <strong>{{ analytics.kpi_extra.ca_total|money }}</strong>
+      <small>{{ analytics.kpi_extra.devis_total }} devis consolides</small>
+    </div>
+    <div class="hero-metric-card muted">
+      <span>Client le plus contributif</span>
+      <strong>{{ analytics.top_clients[0].name if analytics.top_clients else 'Aucun client' }}</strong>
+      <small>{{ analytics.insights.top_client_share }}% du CA total</small>
+    </div>
+  </div>
+</section>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6 col-xl-3">
+    <div class="surface-card analytics-stat-card analytics-stat-primary">
+      <span class="kpi-label">CA total</span>
+      <h2 class="kpi-value">{{ analytics.kpi_extra.ca_total|money }}</h2>
+      <p>{{ '+' if analytics.insights.revenue_growth >= 0 else '' }}{{ analytics.insights.revenue_growth }}% vs mois precedent</p>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="surface-card analytics-stat-card">
+      <span class="kpi-label">Budget sous gestion</span>
+      <h2 class="kpi-value">{{ analytics.kpi_extra.budget_total|money }}</h2>
+      <p>{{ analytics.kpi_extra.projets_total }} projets dans le portefeuille</p>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="surface-card analytics-stat-card">
+      <span class="kpi-label">Clients actifs</span>
+      <h2 class="kpi-value">{{ analytics.kpi_extra.clients_actifs }}</h2>
+      <p>Base active reliee a au moins un projet</p>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="surface-card analytics-stat-card">
+      <span class="kpi-label">Livraison</span>
+      <h2 class="kpi-value">{{ analytics.insights.delivery_rate }}%</h2>
+      <p>{{ analytics.kpi_extra.projets_termines }} projets termines</p>
+    </div>
+  </div>
+</div>
+
+<div class="analytics-mini-grid mb-4">
+  <article class="surface-card analytics-mini-card">
+    <span class="mini-title">Panier moyen devis</span>
+    <strong>{{ analytics.insights.average_quote_value|money }}</strong>
+    <small>Moyenne par devis emis</small>
+  </article>
+  <article class="surface-card analytics-mini-card">
+    <span class="mini-title">Projets en production</span>
+    <strong>{{ analytics.kpi_extra.projets_en_cours }}</strong>
+    <small>{{ analytics.insights.production_load }}% de la charge globale</small>
+  </article>
+  <article class="surface-card analytics-mini-card">
+    <span class="mini-title">Pipeline a lancer</span>
+    <strong>{{ analytics.kpi_extra.projets_en_attente }}</strong>
+    <small>Pre-production a securiser</small>
+  </article>
+  <article class="surface-card analytics-mini-card">
+    <span class="mini-title">Taux d'acceptation</span>
+    <strong>{{ analytics.insights.acceptance_rate }}%</strong>
+    <small>Conversion des devis emis</small>
+  </article>
+</div>
+
+<div class="row g-3">
+  <div class="col-xl-8">
+    <div class="surface-card list-section analytics-panel mb-3">
+      <div class="analytics-panel-head">
+        <div>
+          <h2 class="h4 mb-1">Traction revenu sur 6 mois</h2>
+          <p class="soft-muted mb-0">Lecture rapide du momentum commercial et de la cadence de facturation.</p>
+        </div>
+        <span class="analytics-badge">Revenue intelligence</span>
+      </div>
+      <canvas id="analyticsRevenueChart" height="110"></canvas>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-7">
+        <div class="surface-card list-section analytics-panel h-100">
+          <div class="analytics-panel-head">
+            <div>
+              <h2 class="h4 mb-1">Top clients par revenu</h2>
+              <p class="soft-muted mb-0">Les comptes qui structurent le business aujourd'hui.</p>
+            </div>
+          </div>
+          <canvas id="analyticsClientsChart" height="180"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="surface-card list-section analytics-panel h-100">
+          <div class="analytics-panel-head">
+            <div>
+              <h2 class="h4 mb-1">Comptes dominants</h2>
+              <p class="soft-muted mb-0">Part relative du CA par client.</p>
+            </div>
+          </div>
+          <div class="analytics-client-list">
+            {% for client in analytics.top_clients %}
+            <div class="analytics-client-row">
+              <div>
+                <strong>{{ client.name }}</strong>
+                <small>{{ client.amount|money }}</small>
+              </div>
+              <div class="analytics-share">
+                <span>{{ client.share }}%</span>
+                <div class="analytics-share-bar"><span style="width: {{ client.share }}%"></span></div>
+              </div>
+            </div>
+            {% else %}
+            <p class="soft-muted mb-0">Aucune donnee client exploitable.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="surface-card list-section analytics-panel mb-3">
+      <div class="analytics-panel-head">
+        <div>
+          <h2 class="h4 mb-1">Cadence des projets</h2>
+          <p class="soft-muted mb-0">Equilibre entre preparation, execution et livraison.</p>
+        </div>
+      </div>
+      <canvas id="analyticsProjectsChart" height="180"></canvas>
+    </div>
+
+    <div class="surface-card list-section analytics-panel mb-3">
+      <div class="analytics-panel-head">
+        <div>
+          <h2 class="h4 mb-1">Tunnel devis</h2>
+          <p class="soft-muted mb-0">Vision claire de la conversion commerciale.</p>
+        </div>
+      </div>
+      <canvas id="analyticsQuotesChart" height="160"></canvas>
+    </div>
+
+    <div class="surface-card list-section analytics-panel">
+      <div class="analytics-panel-head">
+        <div>
+          <h2 class="h4 mb-1">Deadlines a surveiller</h2>
+          <p class="soft-muted mb-0">Les prochaines livraisons encore ouvertes.</p>
+        </div>
+      </div>
+      <div class="analytics-deadline-list">
+        {% for item in analytics.upcoming_deadlines %}
+        <div class="deadline-item">
+          <div class="deadline-top">
+            <strong>{{ item.title }}</strong>
+            <span class="status-pill {% if item.status == 'En cours' %}progress{% elif item.status == 'En attente' %}wait{% else %}done{% endif %}">
+              {{ item.status }}
+            </span>
+          </div>
+          <div class="deadline-meta">
+            <span>{{ item.client }}</span>
+            <span>Livraison {{ item.date_fin }}</span>
+          </div>
+        </div>
+        {% else %}
+        <p class="soft-muted mb-0">Aucune deadline active a court terme.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  const analytics = {
+    trendLabels: {{ analytics.trend_labels|tojson }},
+    trendValues: {{ analytics.trend_values|tojson }},
+    projectStatusLabels: {{ analytics.project_status_labels|tojson }},
+    projectStatusValues: {{ analytics.project_status_values|tojson }},
+    quoteStatusLabels: {{ analytics.quote_status_labels|tojson }},
+    quoteStatusValues: {{ analytics.quote_status_values|tojson }},
+    topClientsLabels: {{ analytics.top_clients_labels|tojson }},
+    topClientsValues: {{ analytics.top_clients_values|tojson }},
+  };
+
+  const baseGrid = { color: '#e8eef8' };
+  const compactMoney = (value) => new Intl.NumberFormat('fr-FR', {
+    notation: value >= 1000 ? 'compact' : 'standard',
+    maximumFractionDigits: 1,
+  }).format(value) + ' EUR';
+
+  Chart.defaults.font.family = 'Manrope, sans-serif';
+  Chart.defaults.color = '#5f6f8e';
+
+  new Chart(document.getElementById('analyticsRevenueChart'), {
+    type: 'line',
+    data: {
+      labels: analytics.trendLabels,
+      datasets: [{
+        data: analytics.trendValues,
+        borderColor: '#1f4ce0',
+        backgroundColor: 'rgba(31,76,224,.14)',
+        fill: true,
+        tension: .34,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        borderWidth: 3,
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => compactMoney(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          grid: baseGrid,
+          ticks: {
+            callback: (value) => compactMoney(value)
+          }
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('analyticsClientsChart'), {
+    type: 'bar',
+    data: {
+      labels: analytics.topClientsLabels,
+      datasets: [{
+        data: analytics.topClientsValues,
+        backgroundColor: ['#163aab', '#2553e5', '#4c6cff', '#80a3ff', '#bbccff'],
+        borderRadius: 10,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => compactMoney(ctx.parsed.x)
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: baseGrid,
+          ticks: { callback: (value) => compactMoney(value) }
+        },
+        y: { grid: { display: false } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('analyticsProjectsChart'), {
+    type: 'doughnut',
+    data: {
+      labels: analytics.projectStatusLabels,
+      datasets: [{ data: analytics.projectStatusValues, backgroundColor: ['#f0aa22', '#2553e5', '#18a874'], borderWidth: 0 }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, cutout: '68%' }
+  });
+
+  new Chart(document.getElementById('analyticsQuotesChart'), {
+    type: 'polarArea',
+    data: {
+      labels: analytics.quoteStatusLabels,
+      datasets: [{ data: analytics.quoteStatusValues, backgroundColor: ['#7f9cf5', '#18a874', '#da4762'], borderWidth: 0 }]
+    },
+    options: {
+      plugins: { legend: { position: 'bottom' } },
+      scales: { r: { grid: { color: '#e8eef8' } } }
+    }
+  });
+</script>
+{% endblock %}

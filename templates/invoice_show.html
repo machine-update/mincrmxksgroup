@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ invoice.reference }} | Facture{% endblock %}
+
+{% block top_action %}
+<a class="btn btn-outline-secondary" href="{{ url_for('invoices_list') }}"><i class="bi bi-arrow-left"></i> Retour</a>
+<a class="btn btn-primary-modern" href="{{ url_for('invoices_print', invoice_id=invoice.id) }}" target="_blank"><i class="bi bi-printer"></i> Imprimer / PDF</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Facture {{ invoice.reference }}</h1>
+    <p class="page-sub">Document de facturation relie a {{ invoice.client.nom }}{% if invoice.devis %} depuis le devis {{ invoice.devis.reference }}{% endif %}.</p>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-xl-8">
+    <div class="surface-card list-section mb-3">
+      <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+          <span class="kpi-label">Facture</span>
+          <h2 class="h3 mb-1">{{ invoice.reference }}</h2>
+          <p class="soft-muted mb-0">Emission {{ invoice.date_facture.strftime('%d/%m/%Y') }} · Echeance {{ invoice.date_echeance.strftime('%d/%m/%Y') }}</p>
+        </div>
+        <span class="status-pill {% if invoice.statut == 'Payee' %}done{% elif invoice.statut == 'Annulee' %}other{% elif invoice.statut == 'Brouillon' %}wait{% else %}progress{% endif %}">
+          {{ invoice.statut }}
+        </span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table modern-table align-middle">
+          <thead><tr><th>Designation</th><th>Quantite</th><th>Prix unitaire</th><th>Total</th></tr></thead>
+          <tbody>
+            {% for line in invoice.lignes %}
+            <tr>
+              <td>{{ line.designation }}</td>
+              <td>{{ line.quantite }}</td>
+              <td>{{ line.prix_unitaire|money }}</td>
+              <td class="fw-bold">{{ line.total|money }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center soft-muted py-4">Aucune ligne de facture.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="surface-card list-section mb-3">
+      <h3 class="h4 mb-3">Resume</h3>
+      <div class="d-flex justify-content-between mb-2"><span class="soft-muted">Client</span><strong>{{ invoice.client.nom }}</strong></div>
+      <div class="d-flex justify-content-between mb-2"><span class="soft-muted">Source</span><strong>{{ invoice.devis.reference if invoice.devis else '-' }}</strong></div>
+      <div class="d-flex justify-content-between mb-2"><span class="soft-muted">Echeance</span><strong>{{ invoice.date_echeance.strftime('%d/%m/%Y') }}</strong></div>
+      <div class="d-flex justify-content-between mb-2"><span class="soft-muted">HT</span><strong>{{ invoice.subtotal_ht|money }}</strong></div>
+      <div class="d-flex justify-content-between mb-2"><span class="soft-muted">TVA (20%)</span><strong>{{ invoice.tax_amount|money }}</strong></div>
+      <hr>
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="soft-muted">Montant TTC</span>
+        <strong style="font-size:1.6rem">{{ invoice.total_ttc|money }}</strong>
+      </div>
+    </div>
+
+    {% if current_user.role == 'responsable' %}
+    <div class="surface-card list-section">
+      <h3 class="h4 mb-3">Mettre a jour le statut</h3>
+      <form method="post" action="{{ url_for('invoices_update_status', invoice_id=invoice.id) }}" class="d-grid gap-2">
+        <select class="form-select" name="statut">
+          {% for status in ['Brouillon', 'Emise', 'Payee', 'Annulee'] %}
+          <option value="{{ status }}" {% if invoice.statut == status %}selected{% endif %}>{{ status }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-primary-modern" type="submit">Enregistrer</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

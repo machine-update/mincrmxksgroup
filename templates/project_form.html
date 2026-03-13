@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Modifier' if project else 'Nouveau' }} projet | XKSGROUP CRM{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ 'Modifier le projet' if project else 'Nouveau projet' }}</h1>
+    <p class="page-sub">Track production type, budget and timeline in one place.</p>
+  </div>
+</div>
+
+<div class="surface-card form-shell">
+  <form method="post" class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">Titre du projet *</label>
+      <input class="form-control" name="titre" value="{{ project.titre if project else '' }}" required>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Client *</label>
+      <select class="form-select" name="client_id" required>
+        <option value="">Selectionner un client</option>
+        {% for c in clients %}
+          <option value="{{ c.id }}" {% if project and project.client_id == c.id %}selected{% endif %}>{{ c.nom }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Type</label>
+      <select class="form-select" name="type">
+        {% for t in ['Clip', 'Spectacle', 'Documentaire'] %}
+        <option value="{{ t }}" {% if project and project.type == t %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Statut</label>
+      <select class="form-select" name="statut">
+        {% for s in ['En attente', 'En cours', 'Termine'] %}
+        <option value="{{ s }}" {% if project and project.statut == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Budget (EUR)</label>
+      <input class="form-control" type="number" step="0.01" name="budget" value="{{ project.budget if project and project.budget is not none else '' }}">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Date de debut</label>
+      <input class="form-control" type="date" name="date_debut" value="{{ project.date_debut.isoformat() if project and project.date_debut else '' }}">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Date de fin</label>
+      <input class="form-control" type="date" name="date_fin" value="{{ project.date_fin.isoformat() if project and project.date_fin else '' }}">
+    </div>
+    <div class="col-12 d-flex gap-2">
+      <button class="btn btn-primary-modern" type="submit">Enregistrer le projet</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('projects_list') }}">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

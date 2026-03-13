@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Utilisateurs | XKSGROUP CRM{% endblock %}
+
+{% block top_action %}
+<a class="btn btn-primary-modern" href="{{ url_for('users_new') }}"><i class="bi bi-plus-lg"></i> Ajouter un utilisateur</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Gestion des acces equipe</h1>
+    <p class="page-sub">Gerer les permissions et comptes internes.</p>
+  </div>
+</div>
+
+<div class="surface-card list-section">
+  <div class="table-responsive">
+    <table class="table modern-table align-middle">
+      <thead><tr><th>Nom</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for u in users %}
+      <tr>
+        <td><div class="d-flex align-items-center gap-2"><span class="avatar">{{ u.nom[:1]|upper }}</span> <strong>{{ u.nom }}</strong></div></td>
+        <td>{{ u.email }}</td>
+        <td>
+          {% if u.role == 'responsable' %}<span class="status-pill progress">Responsable</span>{% else %}<span class="status-pill other">Employe</span>{% endif %}
+        </td>
+        <td>
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('users_edit', user_id=u.id) }}"><i class="bi bi-pencil"></i></a>
+          {% if current_user.id != u.id %}
+          <form method="post" action="{{ url_for('users_delete', user_id=u.id) }}" class="d-inline" onsubmit="return confirm('Supprimer cet utilisateur ?')">
+            <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-center soft-muted py-4">Aucun utilisateur trouve.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

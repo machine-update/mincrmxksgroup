@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord | XKSGROUP CRM{% endblock %}
+
+{% block top_action %}
+<a class="btn btn-primary-modern" href="{{ url_for('projects_new') }}"><i class="bi bi-plus-lg"></i> Nouveau projet</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Centre de pilotage</h1>
+    <p class="page-sub">Vue operationnelle inspiree des grands outils SaaS de gestion.</p>
+  </div>
+  <span class="status-pill progress"><i class="bi bi-circle-fill" style="font-size:7px"></i> En direct</span>
+</div>
+
+{% if stats %}
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="surface-card kpi">
+      <div class="kpi-top">
+        <div class="kpi-icon" style="background:#e7efff;color:#2553e5"><i class="bi bi-people"></i></div>
+        <span class="delta up">+12%</span>
+      </div>
+      <p class="kpi-label">Clients</p>
+      <h2 class="kpi-value">{{ stats.clients }}</h2>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="surface-card kpi">
+      <div class="kpi-top">
+        <div class="kpi-icon" style="background:#f0ebff;color:#7c3aed"><i class="bi bi-diagram-3"></i></div>
+        <span class="delta up">+5%</span>
+      </div>
+      <p class="kpi-label">Projets en cours</p>
+      <h2 class="kpi-value">{{ stats.projets_en_cours }}</h2>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="surface-card kpi">
+      <div class="kpi-top">
+        <div class="kpi-icon" style="background:#e7f8ef;color:#169966"><i class="bi bi-receipt"></i></div>
+        <span class="delta up">+9%</span>
+      </div>
+      <p class="kpi-label">Devis emis</p>
+      <h2 class="kpi-value">{{ stats.devis_total }}</h2>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="surface-card kpi">
+      <div class="kpi-top">
+        <div class="kpi-icon" style="background:#fff3df;color:#b57800"><i class="bi bi-cash-stack"></i></div>
+        <span class="delta down">-2%</span>
+      </div>
+      <p class="kpi-label">CA cumule</p>
+      <h2 class="kpi-value">{{ analytics.kpi_extra.ca_total|money }}</h2>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-xl-8">
+    <div class="surface-card list-section h-100">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h4 mb-0">Tendance des revenus (6 mois)</h2>
+        <span class="soft-muted small">Devis valides et en cours</span>
+      </div>
+      <canvas id="revenueTrendChart" height="120"></canvas>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="surface-card list-section h-100">
+      <h2 class="h4 mb-2">Repartition des projets</h2>
+      <canvas id="projectStatusChart" height="170"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-xl-7">
+    <div class="surface-card list-section mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h4 mb-1">Pipeline de production</h2>
+          <p class="soft-muted mb-0">Derniers projets actifs et leurs statuts.</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table modern-table align-middle">
+          <thead><tr><th>Projet</th><th>Client</th><th>Statut</th><th>Debut</th></tr></thead>
+          <tbody>
+            {% for p in recent_projects %}
+            <tr>
+              <td>
+                <p class="mb-0 fw-bold">{{ p.titre }}</p>
+                <small class="soft-muted">{{ p.type }}</small>
+              </td>
+              <td>{{ p.client.nom }}</td>
+              <td>
+                {% if p.effective_status == 'En cours' %}
+                <span class="status-pill progress">En production</span>
+                {% elif p.effective_status == 'En attente' %}
+                <span class="status-pill wait">Pre-production</span>
+                {% else %}
+                <span class="status-pill done">Termine</span>
+                {% endif %}
+              </td>
+              <td>{{ p.date_debut.strftime('%d/%m/%Y') if p.date_debut else '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-muted">Aucun projet pour le moment.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="surface-card list-section">
+      <h2 class="h4 mb-3">Top clients par chiffre d'affaires</h2>
+      <canvas id="topClientsChart" height="150"></canvas>
+    </div>
+  </div>
+
+  <div class="col-xl-5">
+    <div class="surface-card list-section mb-3">
+      <h2 class="h4 mb-3">Actions rapides</h2>
+      <div class="d-grid gap-2">
+        <a href="{{ url_for('clients_new') }}" class="btn btn-outline-primary text-start"><i class="bi bi-person-plus"></i> Creer un client</a>
+        <a href="{{ url_for('quotes_new') }}" class="btn btn-outline-primary text-start"><i class="bi bi-file-earmark-plus"></i> Creer un devis</a>
+        <a href="{{ url_for('analytics_view') }}" class="btn btn-outline-primary text-start"><i class="bi bi-graph-up"></i> Ouvrir les analyses</a>
+      </div>
+    </div>
+
+    <div class="surface-card list-section mb-3">
+      <h2 class="h4 mb-3">Sante commerciale</h2>
+      <canvas id="quoteStatusChart" height="160"></canvas>
+    </div>
+
+    <div class="surface-card list-section" style="background:linear-gradient(145deg,#2953ef,#5f57ff);color:#fff;border:none;">
+      <h3 class="h4 mb-3">Prochaines 48 heures</h3>
+      <div class="d-grid gap-2">
+        {% for d in recent_quotes[:2] %}
+        <div class="p-3 rounded-3" style="background:rgba(255,255,255,0.16)">
+          <div class="fw-bold">{{ d.reference }}</div>
+          <div class="small">{{ d.client.nom }}</div>
+        </div>
+        {% else %}
+        <div class="small" style="opacity:0.9">Aucun element a venir.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  const analytics = {
+    trendLabels: {{ analytics.trend_labels|tojson }},
+    trendValues: {{ analytics.trend_values|tojson }},
+    projectStatusLabels: {{ analytics.project_status_labels|tojson }},
+    projectStatusValues: {{ analytics.project_status_values|tojson }},
+    quoteStatusLabels: {{ analytics.quote_status_labels|tojson }},
+    quoteStatusValues: {{ analytics.quote_status_values|tojson }},
+    topClientsLabels: {{ analytics.top_clients_labels|tojson }},
+    topClientsValues: {{ analytics.top_clients_values|tojson }},
+  };
+
+  const baseGrid = { color: '#e8eef8' };
+
+  new Chart(document.getElementById('revenueTrendChart'), {
+    type: 'line',
+    data: {
+      labels: analytics.trendLabels,
+      datasets: [{
+        label: 'Revenus (EUR)',
+        data: analytics.trendValues,
+        borderColor: '#2553e5',
+        backgroundColor: 'rgba(37,83,229,.12)',
+        fill: true,
+        tension: .35,
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { grid: baseGrid } }
+    }
+  });
+
+  new Chart(document.getElementById('projectStatusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: analytics.projectStatusLabels,
+      datasets: [{
+        data: analytics.projectStatusValues,
+        backgroundColor: ['#f0aa22', '#2553e5', '#18a874'],
+        borderWidth: 0,
+      }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, cutout: '62%' }
+  });
+
+  new Chart(document.getElementById('quoteStatusChart'), {
+    type: 'bar',
+    data: {
+      labels: analytics.quoteStatusLabels,
+      datasets: [{
+        label: 'Devis',
+        data: analytics.quoteStatusValues,
+        borderRadius: 8,
+        backgroundColor: ['#7f9cf5', '#18a874', '#da4762']
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { grid: baseGrid } }
+    }
+  });
+
+  new Chart(document.getElementById('topClientsChart'), {
+    type: 'bar',
+    data: {
+      labels: analytics.topClientsLabels,
+      datasets: [{
+        data: analytics.topClientsValues,
+        backgroundColor: '#4c6cff',
+        borderRadius: 8,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: baseGrid }, y: { grid: { display: false } } }
+    }
+  });
+</script>
+{% endblock %}

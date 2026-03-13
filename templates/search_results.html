@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Recherche | XKSGROUP CRM{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Resultats de recherche</h1>
+    <p class="page-sub">Mot cle: <strong>{{ q or 'Aucun' }}</strong></p>
+  </div>
+</div>
+
+{% if not q %}
+<div class="alert alert-info">Saisis un terme dans la barre de recherche en haut.</div>
+{% else %}
+<div class="row g-3">
+  <div class="col-lg-3">
+    <div class="surface-card list-section h-100">
+      <h2 class="h4 mb-3">Clients ({{ clients|length }})</h2>
+      <div class="list-group list-group-flush">
+        {% for c in clients %}
+        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('clients_list', q=c.nom) }}">
+          <div class="fw-semibold">{{ c.nom }}</div>
+          <small class="soft-muted">{{ c.entreprise or '-' }} - {{ c.email }}</small>
+        </a>
+        {% else %}
+        <div class="soft-muted">Aucun client correspondant.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3">
+    <div class="surface-card list-section h-100">
+      <h2 class="h4 mb-3">Projets ({{ projects|length }})</h2>
+      <div class="list-group list-group-flush">
+        {% for p in projects %}
+        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('projects_list', q=p.titre) }}">
+          <div class="fw-semibold">{{ p.titre }}</div>
+          <small class="soft-muted">{{ p.client.nom }} - {{ p.effective_status }}</small>
+        </a>
+        {% else %}
+        <div class="soft-muted">Aucun projet correspondant.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3">
+    <div class="surface-card list-section h-100">
+      <h2 class="h4 mb-3">Devis ({{ quotes|length }})</h2>
+      <div class="list-group list-group-flush">
+        {% for d in quotes %}
+        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('quotes_list', q=d.reference) }}">
+          <div class="fw-semibold">{{ d.reference }}</div>
+          <small class="soft-muted">{{ d.client.nom }} - {{ d.statut }} - {{ d.montant_total|money }}</small>
+        </a>
+        {% else %}
+        <div class="soft-muted">Aucun devis correspondant.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3">
+    <div class="surface-card list-section h-100">
+      <h2 class="h4 mb-3">Factures ({{ invoices|length }})</h2>
+      <div class="list-group list-group-flush">
+        {% for i in invoices %}
+        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('invoices_show', invoice_id=i.id) }}">
+          <div class="fw-semibold">{{ i.reference }}</div>
+          <small class="soft-muted">{{ i.client.nom }} - {{ i.statut }} - {{ i.montant_total|money }}</small>
+        </a>
+        {% else %}
+        <div class="soft-muted">Aucune facture correspondante.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
