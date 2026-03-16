@@ -1,13 +1,14 @@
 # Mini CRM XKSGROUP
 
-CRM interne Flask pour une agence audiovisuelle. Le projet ne depend que de Python, Flask, SQLAlchemy, Bootstrap et des templates Jinja. React, TypeScript, Vite et Node.js ont ete retires.
+CRM interne Flask pour une agence audiovisuelle. Le projet ne depend que de Python, Flask, SQLAlchemy, Bootstrap et des templates Jinja. React, TypeScript, Vite et Node.js ont ete retires. L'application est maintenant prete pour PostgreSQL en deploiement.
 
 ## Stack
 
 - Python
 - Flask
 - SQLAlchemy
-- SQLite
+- PostgreSQL
+- SQLite en fallback local
 - Bootstrap 5
 
 ## Installation
@@ -18,6 +19,24 @@ cd mini-crm
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+python app.py
+```
+
+## Base de donnees
+
+Le projet accepte `DATABASE_URL` via variable d'environnement.
+
+Exemple PostgreSQL local :
+
+```bash
+export DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/xksgroup_mini_crm
+python app.py
+```
+
+Exemple fallback SQLite local :
+
+```bash
+export DATABASE_URL=sqlite:///database/crm.sqlite3
 python app.py
 ```
 
@@ -71,6 +90,17 @@ python app.py
 Application disponible sur `http://localhost:5000`.
 
 Aucune commande `npm`, `node` ou `vite` n'est necessaire.
+
+## Migrations
+
+Le projet est compatible `Flask-Migrate`.
+
+```bash
+export FLASK_APP=app:app
+flask db init
+flask db migrate -m "Initial schema"
+flask db upgrade
+```
 
 ## Tests
 

@@ -13,7 +13,7 @@ from controllers.invoice_controller import invoices_bp
 from controllers.project_controller import projects_bp
 from controllers.quote_controller import devis_bp
 from controllers.user_controller import users_bp
-from extensions import db, login_manager
+from extensions import db, login_manager, migrate
 from models import User
 from services.presentation_service import register_template_helpers
 from services.seed_service import seed_data
@@ -29,6 +29,7 @@ def create_app() -> Flask:
     app.config.from_object(Config)
 
     db.init_app(app)
+    migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
     login_manager.login_message = "Connecte-toi pour acceder a cette page."
@@ -47,7 +48,8 @@ def create_app() -> Flask:
     app.register_blueprint(users_bp)
 
     with app.app_context():
-        db.create_all()
+        if app.config["AUTO_CREATE_SCHEMA"]:
+            db.create_all()
         seed_data()
 
     return app
