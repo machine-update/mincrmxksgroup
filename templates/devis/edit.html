@@ -113,8 +113,8 @@
         <i class="bi bi-file-earmark-check"></i> Ouvrir la facture {{ quote.facture.reference }}
       </a>
       {% elif quote %}
-      <a class="btn btn-outline-secondary w-100" href="{{ url_for('devis.pdf', quote_id=quote.id) }}">
-        <i class="bi bi-download"></i> Telecharger le PDF
+      <a class="btn btn-outline-secondary w-100" href="{{ url_for('devis.print_view', quote_id=quote.id) }}">
+        <i class="bi bi-printer"></i> Imprimer / Enregistrer en PDF
       </a>
       {% elif current_user.role == 'responsable' %}
       <p class="soft-muted mb-3">Apres generation du devis, tu peux creer la facture immediatement depuis cet ecran.</p>

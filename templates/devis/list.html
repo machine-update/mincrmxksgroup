@@ -23,7 +23,7 @@
 
   <div class="table-responsive">
     <table class="table modern-table align-middle">
-      <thead><tr><th>Reference</th><th>Date</th><th>Client</th><th>Total</th><th>Statut</th><th>QR/PDF</th><th>Facture</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Reference</th><th>Date</th><th>Client</th><th>Total</th><th>Statut</th><th>Document</th><th>Facture</th><th>Actions</th></tr></thead>
       <tbody>
         {% for d in quotes %}
         <tr>
@@ -35,8 +35,14 @@
             <span class="status-pill {{ d.statut|status_badge_class }}">{{ d.statut }}</span>
           </td>
           <td>
-            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('devis.public', reference=d.reference) }}"><i class="bi bi-qr-code"></i></a>
-            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('devis.pdf', quote_id=d.id) }}"><i class="bi bi-download"></i></a>
+            <div class="d-grid gap-2">
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('devis.public', reference=d.reference) }}">
+                <i class="bi bi-qr-code"></i> Voir le devis
+              </a>
+              <a class="btn btn-sm btn-primary-modern" href="{{ url_for('devis.print_view', quote_id=d.id) }}">
+                <i class="bi bi-printer"></i> Imprimer / PDF
+              </a>
+            </div>
           </td>
           <td>
             {% if d.facture %}
