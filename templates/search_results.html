@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 {% block title %}Recherche | XKSGROUP CRM{% endblock %}
 
 {% block content %}
@@ -18,7 +18,7 @@
       <h2 class="h4 mb-3">Clients ({{ clients|length }})</h2>
       <div class="list-group list-group-flush">
         {% for c in clients %}
-        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('clients_list', q=c.nom) }}">
+        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('clients.list', q=c.nom) }}">
           <div class="fw-semibold">{{ c.nom }}</div>
           <small class="soft-muted">{{ c.entreprise or '-' }} - {{ c.email }}</small>
         </a>
@@ -34,7 +34,7 @@
       <h2 class="h4 mb-3">Projets ({{ projects|length }})</h2>
       <div class="list-group list-group-flush">
         {% for p in projects %}
-        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('projects_list', q=p.titre) }}">
+        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('projects.list', q=p.titre) }}">
           <div class="fw-semibold">{{ p.titre }}</div>
           <small class="soft-muted">{{ p.client.nom }} - {{ p.effective_status }}</small>
         </a>
@@ -50,7 +50,7 @@
       <h2 class="h4 mb-3">Devis ({{ quotes|length }})</h2>
       <div class="list-group list-group-flush">
         {% for d in quotes %}
-        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('quotes_list', q=d.reference) }}">
+        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('devis.list', q=d.reference) }}">
           <div class="fw-semibold">{{ d.reference }}</div>
           <small class="soft-muted">{{ d.client.nom }} - {{ d.statut }} - {{ d.montant_total|money }}</small>
         </a>
@@ -66,7 +66,7 @@
       <h2 class="h4 mb-3">Factures ({{ invoices|length }})</h2>
       <div class="list-group list-group-flush">
         {% for i in invoices %}
-        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('invoices_show', invoice_id=i.id) }}">
+        <a class="list-group-item list-group-item-action border-0 px-0" href="{{ url_for('invoices.show', invoice_id=i.id) }}">
           <div class="fw-semibold">{{ i.reference }}</div>
           <small class="soft-muted">{{ i.client.nom }} - {{ i.statut }} - {{ i.montant_total|money }}</small>
         </a>

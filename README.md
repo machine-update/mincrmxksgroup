@@ -1,80 +1,79 @@
-# Mini CRM XKSGROUP (Flask)
+# Mini CRM XKSGROUP
 
-Migration du projet vers la stack du cahier des charges:
-- Backend: Python + Flask
-- Base de donnees: SQLite (via SQLAlchemy)
-- Frontend: Templates HTML/CSS + Bootstrap
-- Securite: login + roles `responsable` / `employe`
+CRM interne Flask pour une agence audiovisuelle. Le projet ne depend que de Python, Flask, SQLAlchemy, Bootstrap et des templates Jinja. React, TypeScript, Vite et Node.js ont ete retires.
 
-## Fonctionnalites
+## Stack
 
-- Authentification par email / mot de passe
-- Gestion des roles:
-  - `responsable`: acces complet + stats + gestion utilisateurs
-  - `employe`: acces operationnel (consultation clients, gestion projets/devis)
-- Modules:
-  - Dashboard
-  - Clients
-  - Projets (avec budget)
-  - Devis (lignes de devis et total automatique)
-  - Utilisateurs (admin responsable)
+- Python
+- Flask
+- SQLAlchemy
+- SQLite
+- Bootstrap 5
 
 ## Installation
 
-Prerequis: Python 3.10+
-
 ```bash
-cd /Users/papaabou/Downloads/xksgroup-mini-crm
+git clone <repo>
+cd mini-crm
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
 ```
 
-Mode debug optionnel:
+## Acces
 
-```bash
-FLASK_DEBUG=1 python app.py
-```
-
-Variables d'environnement:
-
-```bash
-cp .env.example .env
-```
-
-Application locale:
-- http://localhost:3000
-
-## Comptes de demo
-
+- URL: http://localhost:5000
 - Responsable: `admin@xks.local` / `admin123`
 - Employe: `employe@xks.local` / `employe123`
-
-## Notes
-
-- La base SQLite est creee automatiquement dans `instance/crm.sqlite3`.
-- L'ancien code React/Node est conserve dans le repo mais n'est plus necessaire pour lancer la version Flask.
-- Les templates HTML sont charges depuis `templates/` et les assets depuis `static/`.
 
 ## Structure
 
 ```text
-app.py
-crm/
-  controllers/
-  models/
-  services/
-  decorators.py
-  extensions.py
-templates/
-static/
-tests/
+mini-crm/
+├── app.py
+├── config.py
+├── controllers/
+├── models/
+├── services/
+├── extensions.py
+├── database/
+├── static/
+│   ├── css/
+│   ├── js/
+│   └── images/
+├── templates/
+│   ├── auth/
+│   ├── clients/
+│   ├── projects/
+│   └── devis/
+├── tests/
+├── requirements.txt
+└── .gitignore
 ```
+
+## Fonctionnalites
+
+- Dashboard Bootstrap avec KPIs et graphiques
+- CRUD clients, projets, devis, utilisateurs
+- Gestion des roles `responsable` et `employe`
+- Recherche globale clients / projets / devis / factures
+- QR code unique pour chaque devis via `static/images/qrcodes/`
+- Export PDF des devis avec logo, lignes et QR code
+- Pagination sur les principales listes
+
+## Lancement rapide
+
+```bash
+python app.py
+```
+
+Application disponible sur `http://localhost:5000`.
+
+Aucune commande `npm`, `node` ou `vite` n'est necessaire.
 
 ## Tests
 
 ```bash
-source .venv/bin/activate
 python -m unittest discover -s tests
 ```

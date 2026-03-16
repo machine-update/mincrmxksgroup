@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 {% block title %}Analytique | XKSGROUP CRM{% endblock %}
 
 {% block top_action %}
-<a class="btn btn-primary-modern" href="{{ url_for('dashboard') }}"><i class="bi bi-arrow-left"></i> Retour au tableau de bord</a>
+<a class="btn btn-primary-modern" href="{{ url_for('dashboard.index') }}"><i class="bi bi-arrow-left"></i> Retour au tableau de bord</a>
 {% endblock %}
 
 {% block content %}

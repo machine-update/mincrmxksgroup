@@ -4,9 +4,9 @@ import unittest
 from datetime import date
 
 from app import app
-from crm.extensions import db
-from crm.models import Invoice, Project, Quote, User
-from crm.services.seed_service import seed_data
+from extensions import db
+from models import Invoice, Project, Quote, User
+from services.seed_service import seed_data
 
 
 class AppSmokeTests(unittest.TestCase):
@@ -59,7 +59,7 @@ class AppSmokeTests(unittest.TestCase):
             data={"email": "admin@xks.local", "password": "admin123"},
             follow_redirects=True,
         )
-        response = self.client.post(f"/quotes/{quote_id}/invoice", follow_redirects=True)
+        response = self.client.post(f"/devis/{quote_id}/facture", follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Facture", response.data)
 
@@ -69,7 +69,7 @@ class AppSmokeTests(unittest.TestCase):
             data={"email": "admin@xks.local", "password": "admin123"},
             follow_redirects=True,
         )
-        self.client.post("/quotes/1/invoice", follow_redirects=True)
+        self.client.post("/devis/1/facture", follow_redirects=True)
         with app.app_context():
             invoice = Invoice.query.order_by(Invoice.id.asc()).first()
             self.assertIsNotNone(invoice)

@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% block title %}Projets | XKSGROUP CRM{% endblock %}
+
+{% block top_action %}
+<a class="btn btn-primary-modern" href="{{ url_for('projects.create') }}"><i class="bi bi-plus-lg"></i> Nouveau projet</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Suivi des projets</h1>
+    <p class="page-sub">Gerer et suivre les productions en cours.</p>
+  </div>
+  <form method="get" class="d-flex gap-2" style="min-width:320px;">
+    <div class="search-wrap" style="max-width:none;">
+      <i class="bi bi-search"></i>
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Rechercher des projets..." />
+    </div>
+  </form>
+</div>
+
+<div class="kanban mb-3">
+  <div class="kanban-col">
+    <div class="kanban-head">
+      <span><i class="bi bi-dot" style="color:#f0aa22"></i> Planification</span>
+      <span class="badge text-bg-light">{{ projects|selectattr('effective_status', 'equalto', 'En attente')|list|length }}</span>
+    </div>
+    {% for p in projects if p.effective_status == 'En attente' %}
+    <div class="kanban-card">
+      <span class="status-pill wait">{{ p.type }}</span>
+      <h5 class="mt-2 mb-1">{{ p.titre }}</h5>
+      <p class="soft-muted mb-2">Client: {{ p.client.nom }}</p>
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="soft-muted">{{ p.date_debut.strftime('%d %b') if p.date_debut else '-' }}</small>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('projects.edit', project_id=p.id) }}">Modifier</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="kanban-col">
+    <div class="kanban-head">
+      <span><i class="bi bi-dot" style="color:#2553e5"></i> En production</span>
+      <span class="badge text-bg-light">{{ projects|selectattr('effective_status', 'equalto', 'En cours')|list|length }}</span>
+    </div>
+    {% for p in projects if p.effective_status == 'En cours' %}
+    <div class="kanban-card" style="border-left:4px solid #2553e5;">
+      <span class="status-pill progress">{{ p.type }}</span>
+      <h5 class="mt-2 mb-1">{{ p.titre }}</h5>
+      <p class="soft-muted mb-2">Client: {{ p.client.nom }}</p>
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="soft-muted">Budget: {{ p.budget|money if p.budget else '-' }}</small>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('projects.edit', project_id=p.id) }}">Modifier</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="kanban-col">
+    <div class="kanban-head">
+      <span><i class="bi bi-dot" style="color:#18a874"></i> Termines / annules</span>
+      <span class="badge text-bg-light">{{ projects|rejectattr('effective_status', 'equalto', 'En cours')|rejectattr('effective_status', 'equalto', 'En attente')|list|length }}</span>
+    </div>
+    {% for p in projects if p.effective_status != 'En cours' and p.effective_status != 'En attente' %}
+    <div class="kanban-card">
+      <span class="status-pill {{ p.effective_status|status_badge_class }}">{{ p.type }}</span>
+      <h5 class="mt-2 mb-1">{{ p.titre }}</h5>
+      <p class="soft-muted mb-2">Client: {{ p.client.nom }}</p>
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="soft-muted">{{ p.effective_status }}</small>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('projects.edit', project_id=p.id) }}">Modifier</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% set endpoint = 'projects.list' %}
+{% include '_pagination.html' %}
+
+{% if current_user.role == 'responsable' %}
+<div class="surface-card list-section">
+  <h3 class="h3 mb-3">Apercu de charge equipe</h3>
+  <div class="row g-3">
+    <div class="col-md-4"><div class="p-3 rounded-3" style="background:#f5f8ff;"><strong>Nicolas B.</strong><div class="progress mt-2"><div class="progress-bar" style="width:85%"></div></div></div></div>
+    <div class="col-md-4"><div class="p-3 rounded-3" style="background:#f5f8ff;"><strong>Sarah J.</strong><div class="progress mt-2"><div class="progress-bar" style="width:40%"></div></div></div></div>
+    <div class="col-md-4"><div class="p-3 rounded-3" style="background:#f5f8ff;"><strong>Marc K.</strong><div class="progress mt-2"><div class="progress-bar" style="width:20%"></div></div></div></div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

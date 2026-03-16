@@ -13,3 +13,8 @@ __pycache__/
 *.pyc
 instance/
 *.sqlite3
+*.db
+.env
+database/*.db
+database/*.sqlite3
+static/images/qrcodes/*.png

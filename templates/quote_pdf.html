@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ quote.reference }}</title>
+    <style>
+      body { font-family: Arial, sans-serif; color: #17233b; font-size: 14px; }
+      .header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:30px; }
+      .header img.logo { width: 180px; }
+      .meta, .client, .totals { border:1px solid #dde6f4; border-radius:12px; padding:16px; }
+      .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:24px; }
+      table { width:100%; border-collapse:collapse; margin-top:10px; }
+      th, td { padding:12px 10px; border-bottom:1px solid #e6edf8; text-align:left; }
+      th { background:#f6f9ff; text-transform:uppercase; font-size:12px; }
+      .totals { width:280px; margin-left:auto; margin-top:24px; }
+      .totals-row { display:flex; justify-content:space-between; margin-bottom:10px; }
+      .total { font-size:22px; font-weight:700; color:#1f4ce0; }
+      .qr { text-align:right; margin-top:24px; }
+      .qr img { width:120px; height:120px; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <img class="logo" src="{{ logo_url }}" alt="XKSGROUP" />
+      <div class="meta">
+        <div><strong>Devis</strong> {{ quote.reference }}</div>
+        <div>Date: {{ quote.date_devis.strftime('%d/%m/%Y') }}</div>
+        <div>Statut: {{ quote.statut }}</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="client">
+        <strong>Client</strong>
+        <div>{{ quote.client.nom }}</div>
+        <div>{{ quote.client.entreprise or '-' }}</div>
+        <div>{{ quote.client.email }}</div>
+        <div>{{ quote.client.telephone or '-' }}</div>
+        <div>{{ quote.client.adresse or '-' }}</div>
+      </div>
+      <div class="client">
+        <strong>Emis par</strong>
+        <div>{{ quote.utilisateur.nom }}</div>
+        <div>XKSGROUP</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Designation</th><th>Quantite</th><th>Prix unitaire</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        {% for line in quote.lignes %}
+        <tr>
+          <td>{{ line.designation }}</td>
+          <td>{{ line.quantite }}</td>
+          <td>{{ line.prix_unitaire|money }}</td>
+          <td>{{ line.total|money }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div class="totals-row"><span>Total</span><strong>{{ quote.montant_total|money }}</strong></div>
+      <div class="totals-row total"><span>Total a payer</span><span>{{ quote.montant_total|money }}</span></div>
+    </div>
+
+    {% if qr_code_url %}
+    <div class="qr">
+      <div>Acces direct au devis</div>
+      <img src="{{ qr_code_url }}" alt="QR code devis" />
+    </div>
+    {% endif %}
+  </body>
+</html>

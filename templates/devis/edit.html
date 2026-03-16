@@ -1,0 +1,197 @@
+{% extends "layout.html" %}
+{% block title %}{{ 'Modifier' if quote else 'Creer' }} devis | XKSGROUP CRM{% endblock %}
+
+{% block top_action %}
+<button class="btn btn-outline-secondary" type="submit" form="quote-form" name="submit_action" value="save_quote">Brouillon</button>
+<button class="btn btn-primary-modern" type="submit" form="quote-form" name="submit_action" value="save_quote">Generer le devis</button>
+{% if current_user.role == 'responsable' %}
+<button class="btn btn-success" type="submit" form="quote-form" name="submit_action" value="save_and_invoice">
+  <i class="bi bi-file-earmark-text"></i> Generer devis + facture
+</button>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ 'Modifier le devis' if quote else 'Nouveau devis' }}</h1>
+    <p class="page-sub">Construire les lignes et produire un devis clair.</p>
+  </div>
+</div>
+
+<form method="post" id="quote-form" class="quote-grid">
+  <div>
+    <div class="surface-card form-shell mb-3">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Client *</label>
+          <select class="form-select" name="client_id" required>
+            <option value="">Selectionner un client</option>
+            {% for c in clients %}
+            <option value="{{ c.id }}" {% if quote and quote.client_id == c.id %}selected{% endif %}>{{ c.nom }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Date du devis</label>
+          <input class="form-control" type="date" name="date_devis" value="{{ quote.date_devis.isoformat() if quote else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Statut</label>
+          <select class="form-select" name="statut" {% if current_user.role == 'employe' %}disabled{% endif %}>
+            {% for s in ['Brouillon', 'Envoye', 'Accepte', 'Refuse'] %}
+            <option value="{{ s }}" {% if quote and quote.statut == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+          {% if current_user.role == 'employe' %}
+          <input type="hidden" name="statut" value="{{ quote.statut if quote else 'Brouillon' }}">
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="surface-card form-shell">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h3 mb-0">Audiovisual Services</h2>
+        <button class="btn btn-sm btn-outline-primary" type="button" id="add-line"><i class="bi bi-plus-circle"></i> Ajouter une ligne</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table modern-table" id="lines-table">
+          <thead><tr><th>Description</th><th>Qt.</th><th>Tarif (EUR)</th><th>Total (EUR)</th><th></th></tr></thead>
+          <tbody>
+            {% if quote and quote.lignes %}
+              {% for line in quote.lignes %}
+              <tr>
+                <td><input class="form-control" name="designation[]" value="{{ line.designation }}" required></td>
+                <td><input class="form-control qty" type="number" min="1" name="quantite[]" value="{{ line.quantite }}" required></td>
+                <td><input class="form-control unit" type="number" step="0.01" min="0" name="prix_unitaire[]" value="{{ line.prix_unitaire }}" required></td>
+                <td class="line-total fw-bold">{{ line.total|money }}</td>
+                <td><button class="btn btn-sm btn-outline-danger remove-line" type="button"><i class="bi bi-trash"></i></button></td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td><input class="form-control" name="designation[]" required></td>
+                <td><input class="form-control qty" type="number" min="1" name="quantite[]" value="1" required></td>
+                <td><input class="form-control unit" type="number" step="0.01" min="0" name="prix_unitaire[]" value="0" required></td>
+                <td class="line-total fw-bold">0,00 EUR</td>
+                <td><button class="btn btn-sm btn-outline-danger remove-line" type="button"><i class="bi bi-trash"></i></button></td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-3">
+        <label class="form-label">Notes & Observations</label>
+        <textarea class="form-control" rows="4" placeholder="Ajouter des details pour le client ou l'equipe de production..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <aside class="sticky-side">
+    <div class="surface-card list-section mb-3">
+      <h3 class="h3 mb-3">Recapitulatif</h3>
+      <div class="d-flex justify-content-between mb-2"><span class="soft-muted">Subtotal</span><span id="subtotal-val">0,00 EUR</span></div>
+      <div class="d-flex justify-content-between mb-2"><span class="soft-muted">TVA (20%)</span><span id="tax-val">0,00 EUR</span></div>
+      <hr>
+      <div class="d-flex justify-content-between align-items-center">
+        <strong>Total TTC</strong>
+        <strong style="font-size:2rem;color:#4b5eff" id="grand-total">{{ quote.montant_total|money if quote else '0,00 EUR' }}</strong>
+      </div>
+      <div class="mt-3 d-grid gap-2">
+        <label class="form-check"><input class="form-check-input" type="checkbox"> <span class="form-check-label">Demander 30% d'acompte</span></label>
+        <label class="form-check"><input class="form-check-input" type="checkbox" checked> <span class="form-check-label">Inclure les CGV dans le PDF</span></label>
+      </div>
+    </div>
+
+    <div class="surface-card list-section mb-3">
+      <h4 class="h5 mb-2">Facturation</h4>
+      {% if quote and quote.facture %}
+      <p class="soft-muted mb-3">Une facture existe deja pour ce devis.</p>
+      <a class="btn btn-primary-modern w-100" href="{{ url_for('invoices.show', invoice_id=quote.facture.id) }}">
+        <i class="bi bi-file-earmark-check"></i> Ouvrir la facture {{ quote.facture.reference }}
+      </a>
+      {% elif quote %}
+      <a class="btn btn-outline-secondary w-100" href="{{ url_for('devis.pdf', quote_id=quote.id) }}">
+        <i class="bi bi-download"></i> Telecharger le PDF
+      </a>
+      {% elif current_user.role == 'responsable' %}
+      <p class="soft-muted mb-3">Apres generation du devis, tu peux creer la facture immediatement depuis cet ecran.</p>
+      <button class="btn btn-success w-100" type="submit" form="quote-form" name="submit_action" value="save_and_invoice">
+        <i class="bi bi-file-earmark-text"></i> Generer directement la facture
+      </button>
+      {% else %}
+      <p class="soft-muted mb-0">La generation de facture est reservee au responsable.</p>
+      {% endif %}
+    </div>
+
+    <div class="surface-card list-section">
+      <h4 class="h5 mb-3">Modele de document</h4>
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-outline-primary">Studio moderne</button>
+        <button type="button" class="btn btn-outline-secondary">Classique entreprise</button>
+      </div>
+    </div>
+  </aside>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const tableBody = document.querySelector('#lines-table tbody');
+  const addLineBtn = document.getElementById('add-line');
+  const grandTotal = document.getElementById('grand-total');
+  const subtotalVal = document.getElementById('subtotal-val');
+  const taxVal = document.getElementById('tax-val');
+
+  function formatMoney(value) {
+    return value.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EUR';
+  }
+
+  function computeTotals() {
+    let total = 0;
+    tableBody.querySelectorAll('tr').forEach((row) => {
+      const qty = parseFloat(row.querySelector('.qty')?.value || '0');
+      const unit = parseFloat(row.querySelector('.unit')?.value || '0');
+      const lineTotal = qty * unit;
+      row.querySelector('.line-total').textContent = formatMoney(lineTotal);
+      total += lineTotal;
+    });
+
+    const tax = total * 0.2;
+    subtotalVal.textContent = formatMoney(total);
+    taxVal.textContent = formatMoney(tax);
+    grandTotal.textContent = formatMoney(total + tax);
+  }
+
+  function bindRowEvents(row) {
+    row.querySelectorAll('.qty, .unit').forEach((input) => {
+      input.addEventListener('input', computeTotals);
+    });
+    row.querySelector('.remove-line').addEventListener('click', () => {
+      if (tableBody.querySelectorAll('tr').length > 1) {
+        row.remove();
+        computeTotals();
+      }
+    });
+  }
+
+  addLineBtn.addEventListener('click', () => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input class="form-control" name="designation[]" required></td>
+      <td><input class="form-control qty" type="number" min="1" name="quantite[]" value="1" required></td>
+      <td><input class="form-control unit" type="number" step="0.01" min="0" name="prix_unitaire[]" value="0" required></td>
+      <td class="line-total fw-bold">0,00 EUR</td>
+      <td><button class="btn btn-sm btn-outline-danger remove-line" type="button"><i class="bi bi-trash"></i></button></td>
+    `;
+    tableBody.appendChild(row);
+    bindRowEvents(row);
+    computeTotals();
+  });
+
+  tableBody.querySelectorAll('tr').forEach(bindRowEvents);
+  computeTotals();
+</script>
+{% endblock %}

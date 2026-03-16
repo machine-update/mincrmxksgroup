@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 {% block title %}Tableau de bord | XKSGROUP CRM{% endblock %}
 
 {% block top_action %}
-<a class="btn btn-primary-modern" href="{{ url_for('projects_new') }}"><i class="bi bi-plus-lg"></i> Nouveau projet</a>
+<a class="btn btn-primary-modern" href="{{ url_for('projects.create') }}"><i class="bi bi-plus-lg"></i> Nouveau projet</a>
 {% endblock %}
 
 {% block content %}
@@ -50,10 +50,10 @@
     <div class="surface-card kpi">
       <div class="kpi-top">
         <div class="kpi-icon" style="background:#fff3df;color:#b57800"><i class="bi bi-cash-stack"></i></div>
-        <span class="delta down">-2%</span>
+        <span class="delta up">+18%</span>
       </div>
-      <p class="kpi-label">CA cumule</p>
-      <h2 class="kpi-value">{{ analytics.kpi_extra.ca_total|money }}</h2>
+      <p class="kpi-label">Montant total devis</p>
+      <h2 class="kpi-value">{{ stats.montant_total_devis|money }}</h2>
     </div>
   </div>
 </div>
@@ -126,9 +126,9 @@
     <div class="surface-card list-section mb-3">
       <h2 class="h4 mb-3">Actions rapides</h2>
       <div class="d-grid gap-2">
-        <a href="{{ url_for('clients_new') }}" class="btn btn-outline-primary text-start"><i class="bi bi-person-plus"></i> Creer un client</a>
-        <a href="{{ url_for('quotes_new') }}" class="btn btn-outline-primary text-start"><i class="bi bi-file-earmark-plus"></i> Creer un devis</a>
-        <a href="{{ url_for('analytics_view') }}" class="btn btn-outline-primary text-start"><i class="bi bi-graph-up"></i> Ouvrir les analyses</a>
+        <a href="{{ url_for('clients.create') }}" class="btn btn-outline-primary text-start"><i class="bi bi-person-plus"></i> Creer un client</a>
+        <a href="{{ url_for('devis.create') }}" class="btn btn-outline-primary text-start"><i class="bi bi-file-earmark-plus"></i> Creer un devis</a>
+        <a href="{{ url_for('dashboard.analytics') }}" class="btn btn-outline-primary text-start"><i class="bi bi-graph-up"></i> Ouvrir les analyses</a>
       </div>
     </div>
 

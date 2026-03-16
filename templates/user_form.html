@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 {% block title %}{{ 'Modifier' if user else 'Nouveau' }} utilisateur | XKSGROUP CRM{% endblock %}
 
 {% block content %}
@@ -32,7 +32,7 @@
     </div>
     <div class="col-12 d-flex gap-2">
       <button class="btn btn-primary-modern" type="submit">Enregistrer l'utilisateur</button>
-      <a class="btn btn-outline-secondary" href="{{ url_for('users_list') }}">Annuler</a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('users.list') }}">Annuler</a>
     </div>
   </form>
 </div>

@@ -28,6 +28,18 @@
         color: #fff;
       }
 
+      .print-head-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+      }
+
+      .print-head-logo {
+        width: 190px;
+        height: auto;
+      }
+
       .print-body {
         padding: 32px;
       }
@@ -82,6 +94,33 @@
         color: #1f4ce0;
       }
 
+      .print-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        margin-top: 28px;
+      }
+
+      .print-footer-note {
+        max-width: 480px;
+        color: #677894;
+        font-size: 14px;
+      }
+
+      .qr-box {
+        text-align: center;
+      }
+
+      .qr-box img {
+        width: 130px;
+        height: 130px;
+        padding: 8px;
+        border: 1px solid #dfe6f3;
+        border-radius: 14px;
+        background: #fff;
+      }
+
       .print-actions {
         display: flex;
         justify-content: flex-end;
@@ -133,8 +172,19 @@
 
     <section class="print-shell">
       <header class="print-head">
-        <h1 style="margin:0 0 8px;font-size:34px;">Facture {{ invoice.reference }}</h1>
-        <p style="margin:0;opacity:.84;">Emission {{ invoice.date_facture.strftime('%d/%m/%Y') }} · Echeance {{ invoice.date_echeance.strftime('%d/%m/%Y') }}</p>
+        <div class="print-head-top">
+          <div>
+            <img class="print-head-logo" src="{{ url_for('static', filename='images/logo-xksgroup-original.webp') }}" alt="XKSGROUP" />
+            <h1 style="margin:16px 0 8px;font-size:34px;">Facture {{ invoice.reference }}</h1>
+            <p style="margin:0;opacity:.84;">Emission {{ invoice.date_facture.strftime('%d/%m/%Y') }} · Echeance {{ invoice.date_echeance.strftime('%d/%m/%Y') }}</p>
+          </div>
+          {% if invoice.devis %}
+          <div class="qr-box" style="color:#fff;">
+            <div style="margin-bottom:8px;font-size:13px;opacity:.9;">QR du devis source</div>
+            <img src="{{ url_for('static', filename='images/qrcodes/' ~ invoice.devis.qr_code_filename) }}" alt="QR devis {{ invoice.devis.reference }}" />
+          </div>
+          {% endif %}
+        </div>
       </header>
 
       <div class="print-body">
@@ -172,6 +222,12 @@
           <div><span>Total HT</span><strong>{{ invoice.subtotal_ht|money }}</strong></div>
           <div><span>TVA (20%)</span><strong>{{ invoice.tax_amount|money }}</strong></div>
           <div class="grand-total"><span>Total TTC</span><strong>{{ invoice.total_ttc|money }}</strong></div>
+        </div>
+
+        <div class="print-footer">
+          <div class="print-footer-note">
+            Document emis par XKSGROUP. {% if invoice.devis %}Scanne le QR code affiche en haut pour retrouver le devis {{ invoice.devis.reference }}.{% endif %}
+          </div>
         </div>
       </div>
     </section>

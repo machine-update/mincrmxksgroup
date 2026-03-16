@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 {% block title %}{{ invoice.reference }} | Facture{% endblock %}
 
 {% block top_action %}
-<a class="btn btn-outline-secondary" href="{{ url_for('invoices_list') }}"><i class="bi bi-arrow-left"></i> Retour</a>
-<a class="btn btn-primary-modern" href="{{ url_for('invoices_print', invoice_id=invoice.id) }}" target="_blank"><i class="bi bi-printer"></i> Imprimer / PDF</a>
+<a class="btn btn-outline-secondary" href="{{ url_for('invoices.list') }}"><i class="bi bi-arrow-left"></i> Retour</a>
+<a class="btn btn-primary-modern" href="{{ url_for('invoices.print_view', invoice_id=invoice.id) }}" target="_blank"><i class="bi bi-printer"></i> Imprimer / PDF</a>
 {% endblock %}
 
 {% block content %}
@@ -66,7 +66,7 @@
     {% if current_user.role == 'responsable' %}
     <div class="surface-card list-section">
       <h3 class="h4 mb-3">Mettre a jour le statut</h3>
-      <form method="post" action="{{ url_for('invoices_update_status', invoice_id=invoice.id) }}" class="d-grid gap-2">
+      <form method="post" action="{{ url_for('invoices.update_status', invoice_id=invoice.id) }}" class="d-grid gap-2">
         <select class="form-select" name="statut">
           {% for status in ['Brouillon', 'Emise', 'Payee', 'Annulee'] %}
           <option value="{{ status }}" {% if invoice.statut == status %}selected{% endif %}>{{ status }}</option>

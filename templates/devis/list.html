@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block title %}Devis | XKSGROUP CRM{% endblock %}
+
+{% block top_action %}
+<a class="btn btn-primary-modern" href="{{ url_for('devis.create') }}"><i class="bi bi-plus-lg"></i> Nouveau devis</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Devis et facturation</h1>
+    <p class="page-sub">Creer, suivre et valider les devis clients.</p>
+  </div>
+</div>
+
+<div class="surface-card list-section">
+  <form method="get" class="mb-3">
+    <div class="search-wrap" style="max-width:none;">
+      <i class="bi bi-search"></i>
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Rechercher un devis par reference ou client..." />
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table modern-table align-middle">
+      <thead><tr><th>Reference</th><th>Date</th><th>Client</th><th>Total</th><th>Statut</th><th>QR/PDF</th><th>Facture</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for d in quotes %}
+        <tr>
+          <td class="fw-bold">{{ d.reference }}</td>
+          <td>{{ d.date_devis.strftime('%d/%m/%Y') }}</td>
+          <td>{{ d.client.nom }}</td>
+          <td class="fw-bold">{{ d.montant_total|money }}</td>
+          <td>
+            <span class="status-pill {{ d.statut|status_badge_class }}">{{ d.statut }}</span>
+          </td>
+          <td>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('devis.public', reference=d.reference) }}"><i class="bi bi-qr-code"></i></a>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('devis.pdf', quote_id=d.id) }}"><i class="bi bi-download"></i></a>
+          </td>
+          <td>
+            {% if d.facture %}
+            <a class="btn btn-sm btn-outline-success" href="{{ url_for('invoices.show', invoice_id=d.facture.id) }}">
+              <i class="bi bi-file-earmark-check"></i> {{ d.facture.reference }}
+            </a>
+            {% elif current_user.role == 'responsable' %}
+            <form method="post" action="{{ url_for('invoices.create_from_devis', quote_id=d.id) }}" class="d-inline">
+              <button class="btn btn-sm btn-outline-primary" type="submit"><i class="bi bi-file-earmark-plus"></i> Convertir</button>
+            </form>
+            {% else %}
+            <span class="soft-muted small">Non generee</span>
+            {% endif %}
+          </td>
+          <td>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('devis.edit', quote_id=d.id) }}"><i class="bi bi-pencil"></i></a>
+            {% if current_user.role == 'responsable' %}
+            <form method="post" action="{{ url_for('devis.delete', quote_id=d.id) }}" class="d-inline" onsubmit="return confirm('Supprimer ce devis ?')">
+              <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center soft-muted py-4">Aucun devis trouve.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% set endpoint = 'devis.list' %}
+  {% include '_pagination.html' %}
+</div>
+{% endblock %}

@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 {% block title %}Utilisateurs | XKSGROUP CRM{% endblock %}
 
 {% block top_action %}
-<a class="btn btn-primary-modern" href="{{ url_for('users_new') }}"><i class="bi bi-plus-lg"></i> Ajouter un utilisateur</a>
+<a class="btn btn-primary-modern" href="{{ url_for('users.create') }}"><i class="bi bi-plus-lg"></i> Ajouter un utilisateur</a>
 {% endblock %}
 
 {% block content %}
@@ -26,9 +26,9 @@
           {% if u.role == 'responsable' %}<span class="status-pill progress">Responsable</span>{% else %}<span class="status-pill other">Employe</span>{% endif %}
         </td>
         <td>
-          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('users_edit', user_id=u.id) }}"><i class="bi bi-pencil"></i></a>
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('users.edit', user_id=u.id) }}"><i class="bi bi-pencil"></i></a>
           {% if current_user.id != u.id %}
-          <form method="post" action="{{ url_for('users_delete', user_id=u.id) }}" class="d-inline" onsubmit="return confirm('Supprimer cet utilisateur ?')">
+          <form method="post" action="{{ url_for('users.delete', user_id=u.id) }}" class="d-inline" onsubmit="return confirm('Supprimer cet utilisateur ?')">
             <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
           </form>
           {% endif %}
@@ -40,5 +40,8 @@
       </tbody>
     </table>
   </div>
+
+  {% set endpoint = 'users.list' %}
+  {% include '_pagination.html' %}
 </div>
 {% endblock %}
