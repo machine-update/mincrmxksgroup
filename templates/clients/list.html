@@ -18,21 +18,21 @@
 <div class="row g-3 mb-3">
   <div class="col-md-4">
     <div class="surface-card kpi">
-      <div class="kpi-top"><p class="kpi-label">Total Clients</p><div class="kpi-icon" style="background:#e9f0ff;color:#2553e5"><i class="bi bi-people"></i></div></div>
+      <div class="kpi-top"><p class="kpi-label">Total Clients</p><div class="kpi-icon" style="background:#f4ead2;color:#a77416"><i class="bi bi-people"></i></div></div>
       <h2 class="kpi-value">{{ clients|length }}</h2>
       <span class="soft-muted">+12% from last month</span>
     </div>
   </div>
   <div class="col-md-4">
     <div class="surface-card kpi">
-      <div class="kpi-top"><p class="kpi-label">Projets actifs</p><div class="kpi-icon" style="background:#f0ebff;color:#7c3aed"><i class="bi bi-kanban"></i></div></div>
+      <div class="kpi-top"><p class="kpi-label">Projets actifs</p><div class="kpi-icon" style="background:#efe5d2;color:#7c5a21"><i class="bi bi-kanban"></i></div></div>
       <h2 class="kpi-value">{{ clients|length * 2 }}</h2>
       <span class="soft-muted">Across all client accounts</span>
     </div>
   </div>
   <div class="col-md-4">
     <div class="surface-card kpi">
-      <div class="kpi-top"><p class="kpi-label">Revenue (Q3)</p><div class="kpi-icon" style="background:#e7f8ef;color:#169966"><i class="bi bi-currency-euro"></i></div></div>
+      <div class="kpi-top"><p class="kpi-label">Revenue (Q3)</p><div class="kpi-icon" style="background:#f4ead2;color:#a77416"><i class="bi bi-currency-euro"></i></div></div>
       <h2 class="kpi-value">{{ (clients|length * 4200) }}k</h2>
       <span class="soft-muted">Target pace +5.2%</span>
     </div>
@@ -59,7 +59,7 @@
 
     <div class="col-12">
       <div class="collapse {% if entreprise or with_phone or order == 'name' %}show{% endif %}" id="clientFilters">
-        <div class="row g-2 p-3 mt-1" style="background:#f6f9ff;border:1px solid #e3ebf8;border-radius:12px;">
+        <div class="row g-2 p-3 mt-1" style="background:#fff8ec;border:1px solid #eadfcd;border-radius:12px;">
           <div class="col-md-5">
             <label class="form-label mb-1">Entreprise contient</label>
             <input class="form-control" name="entreprise" value="{{ entreprise or '' }}" placeholder="Ex: Studio, Media..." />
